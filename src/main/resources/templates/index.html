@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocketTestMain</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <style>
+        button {
+            font-size: 14px;
+            height: 30px;
+            width: 120px;
+            margin: 2px auto;
+        }
+
+        textarea {
+            width: 100%;
+            height: 80px;
+            resize: none;
+        }
+    </style>
+</head>
+<body>
+<div style="display: flex; flex-direction: column; width: 800px;">
+    <div style="display: flex; flex-direction: row; width: 100%; justify-content: space-between; margin-bottom: 10px;">
+        <div style="display: flex; flex-direction: column;">
+            <div style="width: 100%;">
+                <label>Connected:</label>
+                <input style="width: auto;" type="text" id="connectStatus" readonly>
+            </div>
+        </div>
+        <div style="display: flex; flex-direction: row;">
+            <button id="connectBtn" type="button" style="margin-right: 4px;">Connect</button>
+            <button id="disConnectBtn" type="button">Disconnect</button>
+        </div>
+    </div>
+    <div style="width: 100%;">
+        <textarea id="resultMsg" readonly></textarea>
+    </div>
+    <div style="width: 100%; display: flex; flex-direction: column;">
+        <textarea id="sendMsg"></textarea>
+        <div style="align-self: end;">
+            <button id="sendBtn" type="button">Send</button>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+<script>
+    const connectBtn = document.getElementById('connectBtn');
+    connectBtn.onclick = function () {
+        connect();
+    };
+
+    const disConnectBtn = document.getElementById('disConnectBtn');
+    disConnectBtn.onclick = function () {
+        disconnect();
+    };
+
+    const sendBtn = document.getElementById('sendBtn');
+    sendBtn.onclick = function() {
+        sendMessage();
+    };
+
+    let ws = null;
+
+    function connect() {
+        ws = new WebSocket("ws://localhost:8080/ws");
+        ws.onopen = onOpen;
+        ws.onmessage = onMessage;
+        ws.onclose = onClose;
+
+        const status = document.getElementById('connectStatus');
+        status.value = 'Connected';
+    }
+
+    function disconnect() {
+        if (ws) {
+            ws.close();
+            const status = document.getElementById('connectStatus');
+            status.value = 'Disconnected';
+        }
+    }
+
+    function sendMessage() {
+        const msg = document.getElementById('sendMsg');
+        ws.send(msg.value);
+    }
+
+    function onOpen(evt) {
+        const msg = 'Connection Opened.';
+        document.getElementById('resultMsg').value += msg + '\n';
+    }
+
+    function onMessage(evt) {
+        const msg = evt.data;
+        document.getElementById('resultMsg').value += msg + '\n';
+    }
+
+    function onClose(evt) {
+        const msg = 'Connection Closed.';
+        document.getElementById('resultMsg').value += msg + '\n';
+    }
+
+</script>
